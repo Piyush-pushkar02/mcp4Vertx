@@ -1,0 +1,85 @@
+name: Bug report
+description: Something in mcp4vertx behaves differently from what it documents or from the MCP specification.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a report.
+
+        If you believe you have found a **security vulnerability**, please do not
+        open an issue — follow [SECURITY.md](../blob/main/SECURITY.md) instead.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: What you observed, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: >-
+        The smallest piece of code that shows the problem. A failing JUnit test
+        against this repository is the fastest possible route to a fix.
+      render: java
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Which part?
+      multiple: true
+      options:
+        - mcp4vertx-core (sessions, codec, transport SPI)
+        - mcp4vertx-server
+        - mcp4vertx-client
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport
+      description: Leave blank if the problem is not transport-specific.
+      multiple: true
+      options:
+        - Streamable HTTP
+        - Streamable HTTP (stateless)
+        - HTTP+SSE (legacy)
+        - stdio
+
+  - type: input
+    id: version
+    attributes:
+      label: mcp4vertx version
+      placeholder: '0.1.0'
+    validations:
+      required: true
+
+  - type: input
+    id: vertx-version
+    attributes:
+      label: Vert.x version
+      placeholder: '5.1.5'
+
+  - type: input
+    id: java-version
+    attributes:
+      label: JDK
+      description: Output of `java -version`.
+      placeholder: 'temurin 17.0.13'
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or stack trace
+      render: text

@@ -1,0 +1,66 @@
+# EditorConfig describing the style this repository actually uses.
+# https://editorconfig.org
+#
+# This is the machine-readable half of the "Code style" section of CONTRIBUTING.md.
+# Note that it can only express whitespace rules: the brace convention (`catch` and
+# `else` start their own line) and the blank-line-between-fields convention are
+# documented in CONTRIBUTING.md and enforced by review, not by this file.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.java]
+indent_size = 2
+max_line_length = 120
+# IntelliJ reads these; they keep the import layout that the existing sources use:
+# java.* first, then everything else, with io.* last, groups separated by a blank line.
+ij_java_class_count_to_use_import_on_demand = 999
+ij_java_names_count_to_use_static_import_on_demand = 999
+ij_java_blank_lines_around_field = 1
+ij_continuation_indent_size = 4
+
+[*.xml]
+indent_size = 2
+max_line_length = off
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.md]
+# Markdown uses two trailing spaces as a hard line break.
+trim_trailing_whitespace = false
+max_line_length = 100
+
+[*.{sh,bash}]
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+
+# Maven wrapper scripts are generated; leave them exactly as shipped.
+[/.mvn/**]
+indent_style = unset
+indent_size = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+
+[{mvnw,mvnw.cmd}]
+indent_style = unset
+indent_size = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+
+# Licence texts are reproduced verbatim and must not be reformatted.
+[{LICENSE,NOTICE}]
+indent_style = unset
+indent_size = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+max_line_length = off

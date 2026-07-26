@@ -1,0 +1,41 @@
+mcp4vertx
+Copyright 2026 the mcp4vertx authors
+
+This product includes software developed by the mcp4vertx authors.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this software except in compliance with the License. You may obtain a copy of
+the License in the LICENSE file at the root of this repository, or at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+--------------------------------------------------------------------------------
+Third-party attributions
+--------------------------------------------------------------------------------
+
+This product depends on the official Model Context Protocol Java SDK:
+
+    io.modelcontextprotocol.sdk:mcp-core
+    https://github.com/modelcontextprotocol/java-sdk
+    Licensed under the MIT License
+    Copyright (c) Anthropic
+
+mcp4vertx uses that artifact for its wire-protocol value types. In particular it
+reuses the `io.modelcontextprotocol.spec.McpSchema` type hierarchy (together with
+`McpError`, `TypeRef` and `McpJsonMapper`) as the on-the-wire representation of
+MCP messages, so that objects exchanged with mcp4vertx are the same objects the
+official SDK exchanges. The sessions, lifecycle, request routing and transports
+in this project are original work implemented natively on Vert.x futures; the
+Reactor runtime that the official SDK builds on is excluded from this project's
+dependency graph.
+
+This product depends on Eclipse Vert.x:
+
+    io.vertx:vertx-core, io.vertx:vertx-web and related artifacts
+    https://vertx.io/
+    Dual-licensed under the Eclipse Public License 2.0 and the
+    Apache License, Version 2.0
+    Copyright (c) the Eclipse Vert.x project contributors
+
+    Eclipse Public License 2.0: https://www.eclipse.org/legal/epl-2.0/
+    Apache License 2.0:         http://www.apache.org/licenses/LICENSE-2.0

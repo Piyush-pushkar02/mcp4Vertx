@@ -1,0 +1,31 @@
+title: mcp4vertx
+description: A Vert.x-native SDK for the Model Context Protocol
+remote_theme: just-the-docs/just-the-docs
+
+url: https://mcp4vertx.github.io
+baseurl: /mcp4vertx
+
+plugins:
+  - jekyll-remote-theme
+  # Rewrites relative links between .md files to their generated URLs, so the same
+  # links work when browsing the sources on GitHub and on the published site.
+  - jekyll-relative-links
+
+# Site behavior
+search_enabled: true
+heading_anchors: true
+color_scheme: light
+
+# Rendered in the sidebar
+aux_links:
+  mcp4vertx on GitHub:
+    - https://github.com/mcp4vertx/mcp4vertx
+aux_links_new_tab: true
+
+# Rendered under each page
+back_to_top: true
+back_to_top_text: Back to top
+
+footer_content: >-
+  Apache License 2.0.
+  <a href="https://github.com/mcp4vertx/mcp4vertx">github.com/mcp4vertx/mcp4vertx</a>

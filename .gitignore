@@ -1,3 +1,75 @@
+# --- Maven ---------------------------------------------------------------
 target/
-*.iml
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+pom.xml.next
+pom.xml.tag
+release.properties
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+dependency-reduced-pom.xml
+
+# Written by the release workflow when it extracts the CHANGELOG section.
+release-notes.md
+
+# --- IntelliJ IDEA -------------------------------------------------------
 .idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# --- Eclipse -------------------------------------------------------------
+.classpath
+.project
+.settings/
+.factorypath
+bin/
+.apt_generated/
+
+# --- NetBeans ------------------------------------------------------------
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# --- VS Code -------------------------------------------------------------
+# .vscode is not ignored wholesale: a project may want to share launch or
+# settings files. Ignore only the per-user parts.
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# --- JVM crash and profiling output --------------------------------------
+hs_err_pid*
+replay_pid*
+*.hprof
+*.jfr
+
+# --- OS clutter ----------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Logs and scratch ----------------------------------------------------
+*.log
+*.log.*
+tmp/
+temp/
+
+# --- Secrets: never commit these -----------------------------------------
+# GPG material and Central Portal tokens belong in GitHub Actions secrets and in
+# a maintainer's own ~/.m2/settings.xml, never in the repository. See RELEASING.md.
+*.gpg
+*.asc
+secring.*
+settings-security.xml
+.env
+.env.*

@@ -1,0 +1,122 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# `contents: write` is needed only by the final step, which creates the GitHub
+# Release. Publication to Maven Central authenticates with the Central Portal
+# token, not with GITHUB_TOKEN.
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish to Maven Central
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          # The changelog extraction below reads the file at the tagged commit, and
+          # nothing here needs history, so the default shallow clone is fine.
+          fetch-depth: 1
+
+      # Java 17 is the release JDK because maven.compiler.release=17 is the
+      # project's floor: building the published bytecode on the oldest supported
+      # JDK avoids accidentally linking against a newer JDK's API surface.
+      #
+      # setup-java does three things here that are easy to get wrong by hand:
+      #   * imports the GPG secret key into the runner's keyring
+      #   * writes a settings.xml <server> with id `central`, whose username and
+      #     password are read from the two named environment variables at build
+      #     time rather than baked into the file
+      #   * writes the `gpg.passphrase` server entry that maven-gpg-plugin reads
+      #
+      # server-id must match <publishingServerId>central</publishingServerId> in the
+      # root pom's release profile.
+      - name: Set up JDK 17 and release credentials
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_TOKEN_USERNAME
+          server-password: CENTRAL_TOKEN_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          if [ -z "${VERSION}" ]; then
+            echo "::error::Tag '${TAG}' does not contain a version"
+            exit 1
+          fi
+          case "${VERSION}" in
+            *-SNAPSHOT)
+              echo "::error::Refusing to release a SNAPSHOT version: ${VERSION}"
+              exit 1
+              ;;
+          esac
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Releasing ${VERSION} from tag ${TAG}"
+
+      # The tag is the single source of truth for the version. The poms stay on
+      # -SNAPSHOT in git; this rewrites them in the workspace only, for this build.
+      - name: Set project version from tag
+        run: >-
+          mvn -B -ntp
+          org.codehaus.mojo:versions-maven-plugin:2.21.0:set
+          -DnewVersion=${{ steps.version.outputs.version }}
+          -DprocessAllModules=true
+          -DgenerateBackupPoms=false
+
+      - name: Extract this version's changelog section
+        id: changelog
+        run: |
+          set -euo pipefail
+          VERSION='${{ steps.version.outputs.version }}'
+          # Print the body of the "## [<version>]" section: everything after that
+          # heading, up to but not including the next "## " heading.
+          #
+          # The dots in a version are escaped before the string is used as a regex,
+          # so "0.1.0" cannot also match a heading like "## [0x1x0]".
+          awk -v ver="$VERSION" '
+            BEGIN { gsub(/\./, "\\.", ver) }
+            $0 ~ "^## \\[" ver "\\]" { inside = 1; next }
+            inside && /^## / { exit }
+            inside { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "::error::No '## [${VERSION}]' section found in CHANGELOG.md"
+            exit 1
+          fi
+          echo "Release notes:"
+          cat release-notes.md
+
+      # -Prelease turns on sources, javadoc, GPG signing and the Central Portal
+      # upload. Tests run here too: this is the last gate before coordinates become
+      # permanent.
+      - name: Build, sign and publish
+        run: mvn -B -ntp -Prelease deploy
+        env:
+          CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+          CENTRAL_TOKEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          gh release create "${{ steps.version.outputs.tag }}"
+          --title "${{ steps.version.outputs.version }}"
+          --notes-file release-notes.md
+          --verify-tag

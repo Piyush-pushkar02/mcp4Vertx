@@ -4,19 +4,59 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>io.vertx.mcp</groupId>
-  <artifactId>vertx-mcp-parent</artifactId>
+  <groupId>io.github.mcp4vertx</groupId>
+  <artifactId>mcp4vertx-parent</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>Vert.x MCP SDK</name>
+  <name>mcp4vertx</name>
   <description>A Vert.x-native SDK for the Model Context Protocol. Future-based, event-loop friendly, no Reactor.</description>
+  <url>https://github.com/mcp4vertx/mcp4vertx</url>
+  <inceptionYear>2026</inceptionYear>
+
+  <organization>
+    <name>mcp4vertx</name>
+    <url>https://github.com/mcp4vertx</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>piyushpushkar</id>
+      <name>Piyush Pushkar</name>
+      <url>https://github.com/piyushpushkar</url>
+      <organization>mcp4vertx</organization>
+      <organizationUrl>https://github.com/mcp4vertx</organizationUrl>
+      <roles>
+        <role>maintainer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/mcp4vertx/mcp4vertx.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/mcp4vertx/mcp4vertx.git</developerConnection>
+    <url>https://github.com/mcp4vertx/mcp4vertx</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/mcp4vertx/mcp4vertx/issues</url>
+  </issueManagement>
 
   <modules>
-    <module>vertx-mcp-core</module>
-    <module>vertx-mcp-server</module>
-    <module>vertx-mcp-client</module>
-    <module>vertx-mcp-examples</module>
+    <module>mcp4vertx-core</module>
+    <module>mcp4vertx-server</module>
+    <module>mcp4vertx-client</module>
+    <module>mcp4vertx-examples</module>
   </modules>
 
   <properties>
@@ -30,6 +70,29 @@
     <networknt.version>1.5.9</networknt.version>
     <junit.version>5.11.4</junit.version>
     <assertj.version>3.27.3</assertj.version>
+
+    <!--
+      Build plugin versions. Every plugin this build uses is pinned here so that a build
+      run today and the same build run in two years resolve the same plugin bytes. The 4.x
+      lines of the Apache plugins are deliberately avoided: they are betas targeting Maven 4,
+      and this project builds on Maven 3.9.
+    -->
+    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+    <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
+    <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
+    <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+    <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    <license-maven-plugin.version>5.1.1</license-maven-plugin.version>
+    <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
+
+    <!--
+      Overridden to true in the examples module, which is a demo and conformance harness
+      rather than a library, and is therefore never published to Maven Central.
+    -->
+    <maven.deploy.skip>false</maven.deploy.skip>
   </properties>
 
   <dependencyManagement>
@@ -95,18 +158,18 @@
       </dependency>
 
       <dependency>
-        <groupId>io.vertx.mcp</groupId>
-        <artifactId>vertx-mcp-core</artifactId>
+        <groupId>io.github.mcp4vertx</groupId>
+        <artifactId>mcp4vertx-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.vertx.mcp</groupId>
-        <artifactId>vertx-mcp-server</artifactId>
+        <groupId>io.github.mcp4vertx</groupId>
+        <artifactId>mcp4vertx-server</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.vertx.mcp</groupId>
-        <artifactId>vertx-mcp-client</artifactId>
+        <groupId>io.github.mcp4vertx</groupId>
+        <artifactId>mcp4vertx-client</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>
@@ -142,17 +205,224 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.13.0</version>
+          <version>${maven-compiler-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>${maven-surefire-plugin.version}</version>
           <configuration>
             <argLine>-Dorg.slf4j.simpleLogger.defaultLogLevel=info</argLine>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven-jar-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${maven-install-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven-deploy-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${maven-source-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${maven-javadoc-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${maven-gpg-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>${license-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>${central-publishing-maven-plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <!--
+        License header enforcement.
+
+        com.mycila:license-maven-plugin is used rather than org.apache.rat:apache-rat-plugin
+        because this project needs two things from the tool and RAT only does one of them.
+        RAT audits an assembled distribution and reports files with "unknown" licences; it has
+        no supported way to WRITE a missing header. mycila has a `format` goal, so adding the
+        header to every source file is a one-command operation (`mvn license:format`) and
+        stays that way for every new file a contributor adds. mycila also does a strict
+        character-level comparison against the declared header, so a file that has *a* header
+        but the wrong copyright line still fails, which is the property we actually want.
+
+        The header is inlined rather than kept in a separate file on purpose: a `<header>`
+        path is resolved against each module's own basedir, which is the usual way this
+        plugin breaks in a multi-module build. An inline header has no path to get wrong.
+
+        `check` is bound to the `verify` phase, so both `mvn verify` and `mvn install` fail
+        when a source file is missing or has a malformed header.
+      -->
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <configuration>
+          <strictCheck>true</strictCheck>
+          <mapping>
+            <!-- Default for .java is JAVADOC_STYLE, which emits `/**` and makes the licence
+                 header look like the class javadoc. SLASHSTAR_STYLE emits a plain `/*`. -->
+            <java>SLASHSTAR_STYLE</java>
+          </mapping>
+          <licenseSets>
+            <licenseSet>
+              <inlineHeader><![CDATA[Copyright 2026 the mcp4vertx authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.]]></inlineHeader>
+              <includes>
+                <include>src/main/java/**/*.java</include>
+                <include>src/test/java/**/*.java</include>
+              </includes>
+            </licenseSet>
+          </licenseSets>
+        </configuration>
+        <executions>
+          <execution>
+            <id>check-license-headers</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
+
+  <profiles>
+    <!--
+      Everything Maven Central requires but a local `mvn install` does not: sources jar,
+      javadoc jar, detached GPG signatures and the Central Publisher Portal upload. Kept in a
+      profile so day-to-day builds stay fast and do not need a GPG key on the machine.
+
+      Activate with `-Prelease`. See RELEASING.md.
+    -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+              <!--
+                Central requires a javadoc jar; it does not require complete javadoc. The
+                javadoc in this repository is prose-heavy but frequently omits @param/@return
+                on methods whose meaning is already obvious from the surrounding text, so
+                doclint's `missing` group is switched off. Everything else - broken @link
+                targets, malformed HTML, bad references - stays on and fails the build.
+              -->
+              <doclint>all,-missing</doclint>
+              <failOnError>true</failOnError>
+              <quiet>true</quiet>
+              <notimestamp>true</notimestamp>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <!--
+                    The passphrase is read from the MAVEN_GPG_PASSPHRASE environment variable,
+                    which is what actions/setup-java's gpg support and maven-gpg-plugin 3.2+
+                    both expect. No passphrase ever goes in settings.xml or on the command
+                    line. Loopback pinentry is required because CI has no TTY to prompt on.
+                  -->
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!--
+            Central moved off the legacy OSSRH staging API at oss.sonatype.org; uploads now go
+            through the Central Publisher Portal, and this is Sonatype's official plugin for
+            it. `extensions=true` makes it take over the deploy step, so no
+            <distributionManagement> block is needed.
+
+            autoPublish=false means a release lands in the Portal as a validated but unpublished
+            deployment that a human confirms in the web UI. That is the safe default for a
+            first release, because coordinates are permanent once published. Flip it to true
+            once the pipeline has been proven.
+          -->
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>false</autoPublish>
+              <waitUntilPublished>true</waitUntilPublished>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

@@ -1,0 +1,60 @@
+version: 2
+
+updates:
+  # Maven dependencies and build plugins. Versions live in the root pom's
+  # <properties> and in <dependencyManagement>, so Dependabot's Maven updater
+  # rewrites the property values there and every module follows.
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    groups:
+      # Vert.x artifacts are released together and are only tested as a set, so a
+      # split upgrade is never what we want. One PR per Vert.x release.
+      vertx:
+        patterns:
+          - 'io.vertx:*'
+      # Same reasoning for the Jackson BOM and its modules.
+      jackson:
+        patterns:
+          - 'com.fasterxml.jackson*:*'
+      test-libraries:
+        patterns:
+          - 'org.junit*:*'
+          - 'org.assertj:*'
+          - 'org.eclipse.jetty*:*'
+      build-plugins:
+        patterns:
+          - 'org.apache.maven.plugins:*'
+          - 'com.mycila:license-maven-plugin'
+          - 'org.sonatype.central:central-publishing-maven-plugin'
+          - 'org.codehaus.mojo:versions-maven-plugin'
+    ignore:
+      # The MCP SDK dictates the on-the-wire schema types this project exposes in
+      # its own public API, so a bump is an API-compatibility decision rather than
+      # routine maintenance. Majors are reviewed by hand.
+      - dependency-name: 'io.modelcontextprotocol.sdk:*'
+        update-types:
+          - version-update:semver-major
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - ci
+    groups:
+      github-actions:
+        patterns:
+          - '*'

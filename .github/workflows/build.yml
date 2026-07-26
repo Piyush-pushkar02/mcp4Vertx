@@ -1,0 +1,58 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# The build only ever reads the repository. Narrowing the default token means a
+# compromised dependency in the build cannot push commits or publish packages.
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: JDK ${{ matrix.java }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Do not cancel the JDK 21 job when JDK 17 fails: when a failure is
+      # version-specific, seeing both results in one run is what tells you so.
+      fail-fast: false
+      matrix:
+        java: ['17', '21']
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          # setup-java's built-in Maven cache stores ~/.m2/repository keyed on a hash
+          # of every pom.xml in the tree. That is exactly what a hand-rolled
+          # actions/cache step would do here, so a separate cache step would only add
+          # a second, competing key for the same directory.
+          cache: maven
+
+      # `verify` rather than `test`: verify is the phase the license-header check is
+      # bound to, so this also fails a PR that adds a source file without a header.
+      - name: Build
+        run: mvn -B verify
+
+      - name: Upload surefire reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: surefire-reports-jdk${{ matrix.java }}
+          path: |
+            **/target/surefire-reports/**
+          retention-days: 7
+          if-no-files-found: ignore

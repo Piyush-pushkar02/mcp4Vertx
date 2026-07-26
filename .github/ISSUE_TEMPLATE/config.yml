@@ -1,0 +1,18 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or usage help
+    url: https://github.com/mcp4vertx/mcp4vertx/discussions
+    about: >-
+      For "how do I ...?" questions, please open a Discussion rather than an
+      issue. Answers there stay searchable for the next person with the same
+      question.
+  - name: Security vulnerability
+    url: https://github.com/mcp4vertx/mcp4vertx/security/advisories/new
+    about: >-
+      Report privately through GitHub's security advisory form. Please do not
+      open a public issue for vulnerabilities.
+  - name: Model Context Protocol specification
+    url: https://modelcontextprotocol.io/specification
+    about: >-
+      Questions about what the protocol itself requires belong upstream, with
+      the specification.
