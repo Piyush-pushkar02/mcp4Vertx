@@ -8,9 +8,14 @@
   </parent>
   <artifactId>vertx-mcp-client</artifactId>
   <name>Vert.x MCP :: Client</name>
-  <description>MCP client and HTTP/SSE/stdio client transports built on Vert.x WebClient.</description>
+  <description>MCP client and HTTP/SSE/stdio client transports built on the Vert.x core HTTP client.</description>
   <dependencies>
     <dependency><groupId>io.vertx.mcp</groupId><artifactId>vertx-mcp-core</artifactId></dependency>
-    <dependency><groupId>io.vertx</groupId><artifactId>vertx-web-client</artifactId></dependency>
+    <!--
+      The transports use io.vertx.core.http.HttpClient directly, so vertx-core is a
+      first-class dependency here and not just something inherited from vertx-mcp-core.
+      Declared explicitly so that stays true if the core module's own dependencies change.
+    -->
+    <dependency><groupId>io.vertx</groupId><artifactId>vertx-core</artifactId></dependency>
   </dependencies>
 </project>

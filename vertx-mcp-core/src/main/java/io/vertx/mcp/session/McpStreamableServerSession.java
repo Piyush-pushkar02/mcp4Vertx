@@ -113,17 +113,27 @@ public class McpStreamableServerSession extends AbstractMcpSession implements Mc
     this.protocolVersion = protocolVersion;
   }
 
+  /** The event-store stream id used for unsolicited server-to-client traffic. */
+  private String listeningStreamId() {
+    return this.id + "-listening";
+  }
+
   /**
-   * Unsolicited server-to-client traffic goes out on the listening stream. If the client
-   * has not opened one, the write fails rather than silently vanishing -- callers that
-   * treat notifications as best-effort should ignore the failure explicitly.
+   * Unsolicited server-to-client traffic goes out on the listening stream.
+   *
+   * <p>
+   * If the client currently has no {@code GET /mcp} open -- it dropped, or has not opened
+   * one yet -- the message is still <em>recorded</em> against the listening stream rather
+   * than discarded, so a client that reconnects with {@code Last-Event-ID} receives what it
+   * missed. Dropping it here instead (as the naive implementation does) loses list-changed
+   * and resource-updated notifications across a reconnect window, silently, because
+   * broadcast callers treat send failures as non-fatal.
    */
   @Override
   protected Future<Void> write(JSONRPCMessage message) {
     SessionStream stream = this.listeningStream;
     if (stream == null) {
-      return Future.failedFuture(
-          new IllegalStateException("Session " + this.id + " has no listening stream (client has not opened GET /mcp)"));
+      return this.eventStore.append(listeningStreamId(), message).mapEmpty();
     }
     return stream.write(message);
   }
@@ -145,7 +155,7 @@ public class McpStreamableServerSession extends AbstractMcpSession implements Mc
   /** Binds the {@code GET /mcp} stream. Replaces any previous one. */
   public Future<SessionStream> listeningStream(McpStreamableServerTransport transport) {
     return Contexts.on(this.context, () -> {
-      SessionStream stream = new SessionStream(transport, this.id + "-listening");
+      SessionStream stream = new SessionStream(transport, listeningStreamId());
       this.listeningStream = stream;
       this.openStreams.add(stream);
       return Future.succeededFuture(stream);
@@ -177,7 +187,15 @@ public class McpStreamableServerSession extends AbstractMcpSession implements Mc
       SessionStream stream = new SessionStream(transport, this.id + "-" + request.id());
       this.openStreams.add(stream);
       return invokeRequestHandler(request, transportContext, stream)
-        .compose(response -> response == null ? Future.succeededFuture() : stream.write(response))
+        .compose(response -> response == null ? Future.<Void>succeededFuture() : stream.write(response))
+        // The final result reached the client, so nothing on this stream is worth
+        // resuming: drop its recorded events instead of retaining them forever. If the
+        // write failed the client may still come back with Last-Event-ID, so we keep them.
+        .andThen(outcome -> {
+          if (outcome.succeeded()) {
+            this.eventStore.removeStream(stream.streamId());
+          }
+        })
         .eventually(() -> closeStream(stream));
     });
   }
@@ -227,7 +245,11 @@ public class McpStreamableServerSession extends AbstractMcpSession implements Mc
     List<Future<?>> closes = new ArrayList<>();
     for (SessionStream stream : streams) {
       closes.add(stream.transport.close().recover(err -> Future.succeededFuture()));
+      closes.add(this.eventStore.removeStream(stream.streamId()));
     }
+    // The listening stream may have unbound (and so left openStreams) while still holding
+    // recorded events -- purge it by id, not just by live stream.
+    closes.add(this.eventStore.removeStream(listeningStreamId()));
     return Future.all(closes).mapEmpty();
   }
 

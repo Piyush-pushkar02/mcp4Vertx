@@ -12,5 +12,49 @@
     <dependency><groupId>io.vertx.mcp</groupId><artifactId>vertx-mcp-server</artifactId></dependency>
     <dependency><groupId>io.vertx.mcp</groupId><artifactId>vertx-mcp-client</artifactId></dependency>
     <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-simple</artifactId><version>${slf4j.version}</version></dependency>
+
+    <!--
+      Cross-SDK conformance only. These put the OFFICIAL upstream client - and the
+      Reactor runtime it is built on - on the test classpath, so the conformance suite can
+      drive our Vert.x server with a client this repository did not write.
+
+      reactor-core has to be declared by hand: the parent pom excludes it from mcp-core so
+      the shipped modules stay Reactor-free, and that exclusion is inherited here.
+
+      mcp-json-jackson3 supplies the McpJsonMapper the upstream client resolves through
+      ServiceLoader. It also pulls com.networknt:json-schema-validator 3.0.0, which is
+      Jackson-3 based and shares packages with the 1.5.9 our own validator compiles
+      against; the parent's dependencyManagement pins 1.5.9, so the upstream
+      JsonSchemaValidator cannot load here and the conformance tests hand the upstream
+      client an explicit validator instead.
+    -->
+    <!--
+      Declared at compile scope on purpose: the examples themselves use McpSchema, and a
+      test-scoped declaration here would demote the copy vertx-mcp-core brings in.
+    -->
+    <dependency>
+      <groupId>io.modelcontextprotocol.sdk</groupId>
+      <artifactId>mcp-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.modelcontextprotocol.sdk</groupId>
+      <artifactId>mcp-json-jackson3</artifactId>
+      <version>${mcp.sdk.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.7.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Hosts the upstream servlet-based server, so the conformance suite can also run
+         the reverse direction: our client against their server. -->
+    <dependency>
+      <groupId>org.eclipse.jetty.ee10</groupId>
+      <artifactId>jetty-ee10-servlet</artifactId>
+      <version>12.0.16</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
