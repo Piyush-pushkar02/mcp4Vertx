@@ -68,8 +68,8 @@
     <jackson.version>2.20.0</jackson.version>
     <slf4j.version>2.0.16</slf4j.version>
     <networknt.version>1.5.9</networknt.version>
-    <junit.version>5.11.4</junit.version>
-    <assertj.version>3.27.3</assertj.version>
+    <junit.version>6.1.2</junit.version>
+    <assertj.version>3.27.7</assertj.version>
 
     <!--
       Build plugin versions. Every plugin this build uses is pinned here so that a build
