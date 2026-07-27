@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # The changelog extraction below reads the file at the tagged commit, and
           # nothing here needs history, so the default shallow clone is fine.
